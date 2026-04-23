@@ -103,18 +103,22 @@ Run: `node tools/generate.js --prompt "..." --size 2160x3840 --quality high`
 **Prompt:**
 
 ```
-Magazine cover, portrait orientation. Masthead "FORESIGHT" at the top in thin serif caps, letter-spaced, with a hairline rule beneath it.
+Editorial magazine cover, portrait orientation. Contemporary 2026 art direction, post-internet aesthetic, bold and saturated.
 
-Hero line: "THE END OF THE KEYBOARD" set in bold condensed black serif, 55% of frame height, broken across two lines, flush left. Below it, a slim sans-serif deck: "Why voice, vision, and ambient computing are eating typed input."
+Full-bleed hero: a photorealistic overhead shot of a matte-black mechanical keyboard partially submerged in a shallow pool of reflective liquid chrome on a polished concrete surface. Dramatic side-lighting from upper-left, saturated electric-violet gradient wash across the background, warm amber accent from lower-right. Crisp modern photography, no film grain, no vintage treatment.
 
-Composition: split layout. Left two-thirds is a photorealistic close-up of a matte-black mechanical keyboard at a 45-degree angle, dramatic side-lighting, clear key-cap detail. Right third is cream paper texture with a single small monospace tag reading "ISSUE 27 / Q2".
+Overlay typography, all in bright white:
+- Masthead "FORESIGHT" top-left, small all-caps sans-serif, wide tracking, thin weight
+- Date tag top-right, tiny monospace: "VOL. 04 / 2026"
+- Hero line "THE END OF THE KEYBOARD" set in huge bold display sans-serif, 60% of frame height, broken across three flush-left stacked lines, positioned lower-left
+- Deck beneath hero in thin sans-serif white: "Voice, vision, and ambient computing are replacing the thing you are using to read this."
 
-Film-grain analog finish, 35mm, window light with soft warm shadows. No other text or elements. Editorial tone.
+Modern editorial layout, high-contrast, saturated palette. Not a 1990s treatment. No other text.
 ```
 
 Run: `node tools/generate.js --prompt "..." --size 2048x3072 --quality high`
 
-**Why it works.** Magazine covers live or die on typographic hierarchy and accurate materials. `gpt-image-2` renders the masthead, hero line, deck, and issue tag as distinct type systems instead of merging them into one blurry mass. The keyboard key-caps render with correct sub-legending because the model references real mechanical-keyboard imagery. Swap in any real publication's masthead for instant editorial legitimacy.
+**Why it works.** Contemporary magazine covers are about three things working together: full-bleed hero photography, a saturated and confident color palette, and massive display type that reads as editorial instead of retro. `gpt-image-2` holds all three simultaneously — the keyboard render stays photorealistic while the overlaid masthead, date tag, hero line, and deck each occupy distinct type scales without blurring into each other. Drop the "1990s treatment" instruction explicitly or you'll get bookstore-vintage every time.
 
 ---
 
@@ -142,27 +146,32 @@ Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
 
 ---
 
-### 4. Research-grounded brand grid — 16:9 landscape, 4K
+### 4. Research-grounded brand grid (30 logos) — 16:9 landscape, 4K
 
-![LLM landscape 2026 infographic: 6 real AI company logos (OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral, xAI) rendered accurately in a card grid](examples/04-llm-landscape.png)
+![The AI Stack 2026: 30 real AI company logos rendered accurately in a 5-row, 6-column card grid — frontier labs, models, image/audio, dev tools, infra and apps](examples/04-llm-landscape.png)
 
-*Rendered at `3840x2160` — true 4K 16:9 at the 8.29M pixel cap.*
+*Rendered at `3840x2160` — true 4K 16:9 at the 8.29M pixel cap. **30 real brand logos in one composition.***
 
 **Prompt:**
 
 ```
-Tech infographic, landscape. Title "THE LLM LANDSCAPE 2026" in bold condensed sans-serif, top center on a warm cream-to-sand gradient background.
+Tech infographic, landscape. Title "THE AI STACK — 2026" in bold display sans-serif, top center on a warm cream-to-sand gradient background. Small monospace subtitle directly below: "30 labs, tools, and platforms defining the year".
 
-Below the title, a grid of six square cards in 2 rows of 3. Each card is clean white with rounded corners and soft shadow, featuring one real AI company logo mark in full color, rendered accurately: OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral, xAI.
+Main composition: a precise grid of 30 square cards arranged in 5 rows of 6, evenly spaced with consistent generous padding. Each card is clean white with subtle rounded corners and a soft neutral shadow. Inside each card, centered: one real company logo mark in full color rendered with high accuracy at the top, and the company name in clean sans-serif directly beneath. Logo + name only (no descriptor text, to keep density legible).
 
-Under each logo, the company name in clean sans-serif and a one-line descriptor: "Leading with GPT-5", "Claude 4 safety-first reasoning", "Gemini on TPU v5", "Llama open weights", "European frontier lab", "Grok with X integration".
+The 30 companies in reading order:
+Row 1 (frontier labs): OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral, xAI
+Row 2 (models and discovery): Cohere, Perplexity, Hugging Face, DeepSeek, Alibaba Qwen, 01.AI
+Row 3 (image and audio): Midjourney, Runway, Pika, Luma, ElevenLabs, Suno
+Row 4 (developer tools): Cursor, GitHub Copilot, Replit, Vercel, Lovable, Bolt
+Row 5 (infra and apps): LangChain, LlamaIndex, Pinecone, Notion AI, Figma AI, Adobe Firefly
 
-Thin navy rule between rows. No extra text beyond what is specified.
+Thin navy horizontal rules separating the 5 rows with small uppercase row-label text on the left margin. Uniform card sizing, neat vertical and horizontal alignment across all 30 cards. Modern editorial layout. Photorealism and accuracy in every logo. No extra text beyond the title, subtitle, row labels, and the 30 company names.
 ```
 
 Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
 
-**Why it works.** This is the research-grounded-accuracy claim in one image. Six real brand logos rendered correctly in a single composition, each with an accurate one-line positioning blurb pulled from public framing. No other model holds layout, legible sub-type, AND real logo fidelity simultaneously. Use this pattern for competitor grids, conference speaker walls, investor portfolio pages, and any "here are the players in X space" visual.
+**Why it works.** This is the research-grounded-accuracy claim at stress-test scale. **Thirty distinct real brand logos in one image** — frontier labs, model providers, image/audio tools, dev tools, infra and apps — each rendered with correct color, silhouette, and word-mark, all on a uniform grid with visible row labels and clean typographic hierarchy. No other image model holds this density of real-logo fidelity AND layout AND legible sub-type simultaneously. The pattern is extensible: swap the 30 companies for any category (SaaS in your industry, portfolio companies for a VC deck, speaker logos for a conference, integration partners for a product landing page) and the same structure ships in one render. `gpt-image-2` handles high-count grids surprisingly well — push to 36, 42, even 48 cards for denser landscape maps.
 
 ---
 
