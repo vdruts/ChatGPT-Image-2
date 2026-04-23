@@ -60,9 +60,11 @@ Three jobs `gpt-image-2` genuinely nails:
 
 Three opinionated recipes. Clone the repo, drop any of these into `tools/generate.js --prompt "..."`, and you'll have the output in a couple of minutes.
 
-### 1. Product launch infographic — 2:3 portrait, 4K
+### 1. Product launch infographic — 9:16 portrait, 4K
 
 ![ChatGPT Agents infographic: dense layout, real app logos, 3D chatbot mascot, legible copy throughout](examples/01-chatgpt-agents.png)
+
+*Rendered at `2160x3840` — true 4K portrait at the 8.29M pixel cap.*
 
 **Prompt:**
 
@@ -86,13 +88,17 @@ Footer: deep blue-to-purple gradient bar with a rocket icon and the copy "More d
 Typography: bold sans-serif headlines, regular sans body. Palette: cream background, navy text, lavender/violet/cyan accents. Photorealism in the 3D mascot and icons. No extra text beyond what is specified.
 ```
 
-Run: `node tools/generate.js --prompt "..." --size 2560x3840 --quality high`
+Run: `node tools/generate.js --prompt "..." --size 2160x3840 --quality high`
 
 **Why it works.** The dense layout forces the model to hold composition across many sub-regions -- hero, grid, trust band, steps, footer -- while keeping typography legible at every scale. The 3D mascot and the real app-icon cards come out accurate because the model pulls each icon from actual references. This is the class of asset that would otherwise take 3-5 hours in Figma.
 
 ---
 
-### 2. Editorial magazine cover — 2:3 portrait, 4K
+### 2. Editorial magazine cover — 2:3 portrait, 6.3MP
+
+![Magazine cover: masthead FORESIGHT, hero line THE END OF THE KEYBOARD, photorealistic mechanical keyboard on the left](examples/02-magazine-cover.png)
+
+*Rendered at `2048x3072` — 2:3 portrait, 6.3M pixels.*
 
 **Prompt:**
 
@@ -106,13 +112,17 @@ Composition: split layout. Left two-thirds is a photorealistic close-up of a mat
 Film-grain analog finish, 35mm, window light with soft warm shadows. No other text or elements. Editorial tone.
 ```
 
-Run: `node tools/generate.js --prompt "..." --size 2560x3840 --quality high`
+Run: `node tools/generate.js --prompt "..." --size 2048x3072 --quality high`
 
 **Why it works.** Magazine covers live or die on typographic hierarchy and accurate materials. `gpt-image-2` renders the masthead, hero line, deck, and issue tag as distinct type systems instead of merging them into one blurry mass. The keyboard key-caps render with correct sub-legending because the model references real mechanical-keyboard imagery. Swap in any real publication's masthead for instant editorial legitimacy.
 
 ---
 
 ### 3. Photorealistic product lifestyle shot — 16:9 landscape, 4K
+
+![Moleskine notebook flatlay on walnut desk with fountain pen and espresso, overhead photoreal](examples/03-moleskine-flatlay.png)
+
+*Rendered at `3840x2160` — true 4K 16:9 at the 8.29M pixel cap.*
 
 **Prompt:**
 
@@ -129,6 +139,30 @@ Morning overhead daylight, 45-degree cast shadows, warm color temperature. Photo
 Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
 
 **Why it works.** The Moleskine's signature elastic band, rounded corners, and leatherette finish are specific visual signatures -- a generic model would render a vague "notebook shape." `gpt-image-2` actually knows what a Moleskine looks like because it has seen real product imagery. Pair that with `photorealism` and specific light direction and the result is close to a real product photo. Swap "Moleskine" for any other iconic real product -- Aesop hand wash, a Polaroid SX-70, a Herman Miller Aeron -- and the same research-grounded accuracy carries over.
+
+---
+
+### 4. Research-grounded brand grid — 16:9 landscape, 4K
+
+![LLM landscape 2026 infographic: 6 real AI company logos (OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral, xAI) rendered accurately in a card grid](examples/04-llm-landscape.png)
+
+*Rendered at `3840x2160` — true 4K 16:9 at the 8.29M pixel cap.*
+
+**Prompt:**
+
+```
+Tech infographic, landscape. Title "THE LLM LANDSCAPE 2026" in bold condensed sans-serif, top center on a warm cream-to-sand gradient background.
+
+Below the title, a grid of six square cards in 2 rows of 3. Each card is clean white with rounded corners and soft shadow, featuring one real AI company logo mark in full color, rendered accurately: OpenAI, Anthropic, Google DeepMind, Meta AI, Mistral, xAI.
+
+Under each logo, the company name in clean sans-serif and a one-line descriptor: "Leading with GPT-5", "Claude 4 safety-first reasoning", "Gemini on TPU v5", "Llama open weights", "European frontier lab", "Grok with X integration".
+
+Thin navy rule between rows. No extra text beyond what is specified.
+```
+
+Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
+
+**Why it works.** This is the research-grounded-accuracy claim in one image. Six real brand logos rendered correctly in a single composition, each with an accurate one-line positioning blurb pulled from public framing. No other model holds layout, legible sub-type, AND real logo fidelity simultaneously. Use this pattern for competitor grids, conference speaker walls, investor portfolio pages, and any "here are the players in X space" visual.
 
 ---
 
@@ -191,12 +225,14 @@ node tools/generate.js \
 --prompt "<text>"               Required. Image description.
 --reference-image <path>        Repeatable (up to 16). Adds a reference. Triggers Edits endpoint.
 --output <path>                 Output path. Default: ./output.png
---size <size>                   Any WxH where max edge ≤ 3840, both edges are
-                                multiples of 16, and long:short ratio ≤ 3:1.
+--size <size>                   Any WxH satisfying: max edge ≤ 3840, both
+                                multiples of 16, long:short ≤ 3:1, AND total
+                                pixels ≤ 8,294,400 (~8.3M, the hard cap).
                                 Common: 1024x1024, 1024x1536, 1536x1024,
-                                2048x2048, 3840x2160 (4K wide), 2160x3840
-                                (4K tall), 3840x3840 (4K square), 3840x1280
-                                (3:1 ultrawide), auto. Default: auto
+                                2048x2048, 2048x3072, 3072x2048, 3840x2160
+                                (4K wide), 2160x3840 (4K tall), 2880x2880
+                                (max square), 3840x1280 (3:1 ultrawide),
+                                auto. Default: auto
 --quality <quality>             low | medium | high | auto. Default: high
 --model <model>                 gpt-image-2 | gpt-image-1.5 | gpt-image-1 | gpt-image-1-mini.
                                 Default: gpt-image-2
@@ -276,23 +312,24 @@ Add these ONLY when the base prompt underdelivers. Stacking them turns output mu
 
 ### 7. Aspect ratio and resolution (up to 4K)
 
-`gpt-image-2` accepts any `WxH` that satisfies three constraints:
+`gpt-image-2` accepts any `WxH` that satisfies four constraints (per OpenAI's official docs):
 
-- **Max edge ≤ 3840px** (true 4K)
+- **Max edge ≤ 3840px** (true 4K long edge)
 - **Both edges are multiples of 16**
 - **Long-to-short ratio ≤ 3:1**
+- **Total pixels between 655,360 and 8,294,400** (the hard cap — this is the one people miss)
 
 That opens up a much wider design space than "1024 or 1536." The ratio changes the reading experience as much as the content does — test at least two ratios for hero images. Defaults by use case:
 
 | Ratio | Use case | Standard | 4K / hi-res |
 |---|---|---|---|
-| 1:1 | Instagram post, avatar, square poster | `1024x1024` | `3840x3840` |
+| 1:1 | Instagram post, avatar, square poster | `1024x1024` | `2880x2880` (at cap) |
 | 2:3 | LinkedIn portrait, magazine cover | `1024x1536` | `2048x3072` |
 | 3:2 | Editorial landscape, hero banner | `1536x1024` | `3072x2048` |
-| 16:9 | YouTube thumbnail, widescreen hero | — | `3840x2160` |
-| 9:16 | Reels, TikTok, Stories, vertical mobile | — | `2160x3840` |
-| 4:3 | Classic photo landscape | `1024x768` | `2048x1536` |
-| 3:4 | Classic photo portrait | `768x1024` | `1536x2048` |
+| 16:9 | YouTube thumbnail, widescreen hero | — | `3840x2160` (4K, at cap) |
+| 9:16 | Reels, TikTok, Stories, vertical mobile | — | `2160x3840` (4K, at cap) |
+| 4:3 | Classic photo landscape | `1024x768` | `3200x2400` |
+| 3:4 | Classic photo portrait | `768x1024` | `2400x3200` |
 | 2:1 | Wide banner, ticket-style layout | `1536x768` | `3072x1536` |
 | 3:1 | Max-allowed ultrawide (hero strip, OG header) | — | `3840x1280` |
 
