@@ -6,7 +6,7 @@ description: |
   USE WHEN user wants editorial/magazine/poster-style images with precise typography.
   USE WHEN user wants to combine MULTIPLE reference images into one composition (gpt-image-2's killer feature).
   USE WHEN user mentions ChatGPT Images, gpt-image-2, infographic, meta ad creative, or viral LinkedIn image.
-  DO NOT USE for single quick images — use nano-banana (faster, cheaper). DO NOT USE for carousels.
+  DO NOT USE for multi-slide carousel decks or realtime/streaming generation.
 user-invocable: true
 triggers:
   - USE WHEN user wants to create an editorial/magazine/poster-style image with rich typography
@@ -31,9 +31,9 @@ distinguishing capability — pass 2 or more reference images to produce one com
 
 ## When NOT to use this skill
 
-- Single quick image with no reference → use **nano-banana** (faster, cheaper, ~$0.067/img vs ~$0.19+)
-- Multi-slide carousel deck → use **Visual Forge** or **pipeline-carousel**
-- Realtime / streaming generation → not supported by gpt-image-2
+- Multi-slide carousel decks → `gpt-image-2` generates one image at a time and cannot hold layout continuity across slides
+- Realtime / streaming generation → not supported by `gpt-image-2`
+- Transparent PNGs → not supported by `gpt-image-2`
 
 ## Setup
 
@@ -107,12 +107,11 @@ inline the relevant style cues into the prompt.
 
 ## Routing
 
-If you maintain a routing rule for image tools, suggested defaults:
+Reach for this skill when the job is one of:
 
-- Single image, no reference → **nano-banana**
-- Multi-reference composition → **chatgpt-image**
-- Editorial / heavy typography → **chatgpt-image**
-- Multi-slide carousel → **Visual Forge** / your carousel tool of choice
+- Multi-reference composition (2+ reference images merged into one scene)
+- Editorial / heavy typography (posters, magazine spreads, infographics)
+- Text-accurate layouts where letter-perfect rendering matters
 
 ## Gotchas
 

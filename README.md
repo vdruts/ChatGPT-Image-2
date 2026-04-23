@@ -19,15 +19,13 @@ Legible typography, correct spelling, clean composition, first try. That's the s
 
 ---
 
-## When to reach for this skill
+## What this skill is for
 
-`nano-banana` (Gemini) is the right default for single images. Faster, cheaper, single reference. This skill is for the three cases where `gpt-image-2` is genuinely better:
+Three jobs `gpt-image-2` genuinely nails:
 
-1. **Legible typography inside the image.** Posters, magazine spreads, infographics with real headlines and body copy. Text rendering accuracy sits above 95% across Latin, CJK, and Arabic scripts. The other models still smear letters.
-2. **True multi-reference composition.** The Edits endpoint accepts up to 16 reference images and combines them into one scene. Pass `product + lifestyle + brand asset`, get one image back. Gemini takes one reference at a time.
+1. **Legible typography inside the image.** Posters, magazine spreads, infographics with real headlines and body copy. Text rendering accuracy sits above 95% across Latin, CJK, and Arabic scripts.
+2. **True multi-reference composition.** The Edits endpoint accepts up to 16 reference images and combines them into one scene. Pass `product + lifestyle + brand asset`, get one image back.
 3. **Structured layouts.** Grids, hierarchy, spacing, "do exactly this" prompts. `gpt-image-2` follows spatial instructions rather than hallucinating a vibe.
-
-If your prompt doesn't touch any of those, use `nano-banana`. This skill will still work but you will pay more for output you could have gotten cheaper elsewhere.
 
 ---
 
@@ -121,7 +119,7 @@ This is where `gpt-image-2` earns its premium. Use the rules or you will lose th
 - **Always quote the exact text.** `'a poster reading "SHIPPED"'`. Unquoted text gets paraphrased.
 - **Specify placement and typography.** Font style (serif / sans / mono), size (large / medium / small), weight, color, and position. "Bold serif, centered, 40% of frame height, black on cream."
 - **Demand verbatim rendering.** Add `no extra text`, `no duplicate letters`, `no hallucinated words`. Models love to sprinkle filler.
-- **Spell out tricky words letter by letter** for brand names or non-dictionary terms: `the word "HORIZIN" (H-O-R-I-Z-I-N)`.
+- **Spell out tricky words letter by letter** for brand names or non-dictionary terms: `the word "ACME" (A-C-M-E)`.
 - **Use `--quality high`** for small text, dense information panels, and multi-font layouts. `medium` blurs fine type.
 - **Put every piece of text in its own quoted phrase** if you have multiple copy blocks. "Headline 'X', subhead 'Y', CTA 'Z'." Don't run them together.
 
@@ -162,6 +160,7 @@ Materials: name textures, surfaces, reflectivity. "Matte cream paper, no gloss."
 
 Add these ONLY when the base prompt underdelivers. Stacking them turns output mushy:
 
+- `photorealism` is the single highest-leverage word for lifelike output. Drop it into any prompt aiming for a real-photo look and the realism jumps exponentially. Skip it for illustration, poster, or editorial-graphic work.
 - `film grain` / `35mm` for analog warmth
 - `macro detail` / `shallow depth of field` for product shots
 - `candid, unposed` to defeat the default polished-studio look
@@ -223,8 +222,7 @@ Per-call pricing is a function of size x quality x input image tokens (for multi
 
 ## When NOT to use this skill
 
-- **Single quick image, no reference** -> use `nano-banana` (Gemini). Faster, cheaper.
-- **Multi-slide carousel deck** -> use a carousel-specific tool (Visual Forge, pipeline-carousel).
+- **Multi-slide carousel decks** -> use a carousel-specific tool. `gpt-image-2` generates one image at a time and cannot hold layout continuity across slides.
 - **Realtime / streaming generation** -> not supported by `gpt-image-2`.
 - **Transparent PNGs** -> not supported. Composite externally or use a different model.
 
