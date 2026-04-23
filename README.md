@@ -17,6 +17,22 @@ One tool. Routes text prompts through `/images/generations` and multi-reference 
 
 ---
 
+## The real superpower: research-grounded accuracy
+
+Most image models hallucinate specifics. `gpt-image-2` is wired into ChatGPT's deep-research pipeline — it can look up references on the live web and bake **actual visual details** into the output. Name a real product, a real brand, a real person, a real logo, a real location, a real historical reference, and the model pulls the visuals from real sources instead of inventing them.
+
+Practical impact:
+
+- **Logos and wordmarks render correctly** (not warped hallucinations)
+- **Real products match their real packaging, colors, and proportions**
+- **Editorial references to real people, places, and events keep accurate period detail**
+- **App icons, mascots, and UI elements match the live ecosystem** (e.g. Slack, Gmail, Drive, Notion render as themselves)
+- **Technical diagrams reference real topologies** (chip layouts, architecture patterns, molecular structures)
+
+This is the mechanism behind everything the model is good at. Editorial typography, multi-reference composition, dense infographics — all land better because the model isn't guessing what things look like. Describe real things in your prompt and the output is a usable first draft, not a "close enough" approximation.
+
+---
+
 ## See it work in 30 seconds
 
 ```bash
@@ -37,6 +53,82 @@ Three jobs `gpt-image-2` genuinely nails:
 1. **Legible typography inside the image.** Posters, magazine spreads, infographics with real headlines and body copy. Text rendering accuracy sits above 95% across Latin, CJK, and Arabic scripts.
 2. **True multi-reference composition.** The Edits endpoint accepts up to 16 reference images and combines them into one scene. Pass `product + lifestyle + brand asset`, get one image back.
 3. **Structured layouts.** Grids, hierarchy, spacing, "do exactly this" prompts. `gpt-image-2` follows spatial instructions rather than hallucinating a vibe.
+
+---
+
+## Examples
+
+Three opinionated recipes. Clone the repo, drop any of these into `tools/generate.js --prompt "..."`, and you'll have the output in a couple of minutes.
+
+### 1. Product launch infographic — 2:3 portrait, 4K
+
+![ChatGPT Agents infographic: dense layout, real app logos, 3D chatbot mascot, legible copy throughout](examples/01-chatgpt-agents.png)
+
+**Prompt:**
+
+```
+Portrait infographic poster on a pale cream-to-lavender gradient background.
+
+Headline "ChatGPT Agents" in bold condensed sans-serif, with the word "Agents" rendered in a vibrant blue-to-purple gradient. Small "NEW" pill badge above the headline. Subtitle: "Your AI teammate that thinks, acts, and gets things done."
+
+To the right of the title, a 3D-rendered friendly chatbot mascot -- chrome-white sphere with glowing cyan eyes -- surrounded by orbiting rings and floating app-icon cards (calendar, spreadsheet, globe, document).
+
+Three pill badges below the subtitle: "Autonomous", "Reliable", "Works for you".
+
+Section "What they can do" -- a six-card grid. Each card has a small 3D icon, a colored title, and a 3-line description. Cards: Research, Analyze, Create, Take action, Automate, Integrate. Rounded corners, subtle shadows, consistent padding.
+
+Trust band with a lock icon: "You stay in control. Agents act on your behalf, never without your permission."
+
+Section "Easier than ever to get started" -- three numbered steps in rounded pills, each with a supporting UI mini-mockup.
+
+Footer: deep blue-to-purple gradient bar with a rocket icon and the copy "More done. Less effort." OpenAI wordmark on the right.
+
+Typography: bold sans-serif headlines, regular sans body. Palette: cream background, navy text, lavender/violet/cyan accents. Photorealism in the 3D mascot and icons. No extra text beyond what is specified.
+```
+
+Run: `node tools/generate.js --prompt "..." --size 2560x3840 --quality high`
+
+**Why it works.** The dense layout forces the model to hold composition across many sub-regions -- hero, grid, trust band, steps, footer -- while keeping typography legible at every scale. The 3D mascot and the real app-icon cards come out accurate because the model pulls each icon from actual references. This is the class of asset that would otherwise take 3-5 hours in Figma.
+
+---
+
+### 2. Editorial magazine cover — 2:3 portrait, 4K
+
+**Prompt:**
+
+```
+Magazine cover, portrait orientation. Masthead "FORESIGHT" at the top in thin serif caps, letter-spaced, with a hairline rule beneath it.
+
+Hero line: "THE END OF THE KEYBOARD" set in bold condensed black serif, 55% of frame height, broken across two lines, flush left. Below it, a slim sans-serif deck: "Why voice, vision, and ambient computing are eating typed input."
+
+Composition: split layout. Left two-thirds is a photorealistic close-up of a matte-black mechanical keyboard at a 45-degree angle, dramatic side-lighting, clear key-cap detail. Right third is cream paper texture with a single small monospace tag reading "ISSUE 27 / Q2".
+
+Film-grain analog finish, 35mm, window light with soft warm shadows. No other text or elements. Editorial tone.
+```
+
+Run: `node tools/generate.js --prompt "..." --size 2560x3840 --quality high`
+
+**Why it works.** Magazine covers live or die on typographic hierarchy and accurate materials. `gpt-image-2` renders the masthead, hero line, deck, and issue tag as distinct type systems instead of merging them into one blurry mass. The keyboard key-caps render with correct sub-legending because the model references real mechanical-keyboard imagery. Swap in any real publication's masthead for instant editorial legitimacy.
+
+---
+
+### 3. Photorealistic product lifestyle shot — 16:9 landscape, 4K
+
+**Prompt:**
+
+```
+Cinematic lifestyle flatlay on a dark walnut desk, overhead angle.
+
+Center: a classic Moleskine Classic Notebook in black leatherette, closed, with its signature elastic band stretched across the front cover from top edge to bottom edge, about 1cm inset from the right edge. Render the elastic and leatherette texture accurately.
+
+Left of the notebook: a matte-black fountain pen, cap off, nib pointed toward the spine. Right of the notebook: a single espresso in a white porcelain demitasse cup on a matching saucer, with two brown sugar cubes beside it.
+
+Morning overhead daylight, 45-degree cast shadows, warm color temperature. Photorealism, shallow depth of field, focus on the Moleskine elastic. Candid, unposed composition. No text or overlays.
+```
+
+Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
+
+**Why it works.** The Moleskine's signature elastic band, rounded corners, and leatherette finish are specific visual signatures -- a generic model would render a vague "notebook shape." `gpt-image-2` actually knows what a Moleskine looks like because it has seen real product imagery. Pair that with `photorealism` and specific light direction and the result is close to a real product photo. Swap "Moleskine" for any other iconic real product -- Aesop hand wash, a Polaroid SX-70, a Herman Miller Aeron -- and the same research-grounded accuracy carries over.
 
 ---
 
