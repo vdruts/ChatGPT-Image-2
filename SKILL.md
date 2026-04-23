@@ -77,7 +77,10 @@ calls the **Generations endpoint**. Same flag surface, different backend.
 --prompt "<text>"               Required. Image description.
 --reference-image <path>        Repeatable. Adds a reference image. Triggers Edits endpoint.
 --output <path>                 Output path. Default: ./output.png
---size <size>                   1024x1024 | 1024x1536 | 1536x1024 | auto. Default: auto
+--size <size>                   Any WxH where max edge ≤ 3840px, both edges multiples of 16,
+                                long:short ratio ≤ 3:1. Popular: 1024x1024, 1536x1024,
+                                1024x1536, 2048x2048, 3840x2160 (4K landscape),
+                                2160x3840 (4K portrait), auto. Default: auto
 --quality <quality>             low | medium | high | auto. Default: high
 --model <model>                 gpt-image-2 | gpt-image-1.5 | gpt-image-1 | gpt-image-1-mini.
                                 Default: gpt-image-2
