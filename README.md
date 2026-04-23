@@ -179,25 +179,25 @@ Run: `node tools/generate.js --prompt "..." --size 3840x2160 --quality high`
 
 ## Further inspiration — from OpenAI's launch gallery
 
-Capabilities we didn't render ourselves but the model absolutely handles. All three images below are from OpenAI's official gpt-image-2 documentation and are reproduced here as reference for what's possible. Source: [developers.openai.com/api/docs/guides/image-generation](https://developers.openai.com/api/docs/guides/image-generation).
+Capabilities we didn't render ourselves but the model absolutely handles. All three images below are from OpenAI's official gpt-image-2 launch gallery and are reproduced here as reference for what's possible. Source: [developers.openai.com/api/docs/guides/image-generation](https://developers.openai.com/api/docs/guides/image-generation).
 
-### Multi-image reference composition (Edits endpoint)
+### Vintage collage and period typography
 
-![Premium gift basket composed from multiple reference product images, Relax & Unwind label, white studio background](examples/curated/openai-gift-basket.png)
+![GPT Image 2.0 Coming soon launch poster, French New Wave collage with torn paper layers, vintage photography, bold red and blue typography](examples/curated/openai-gptimage-launch-poster.webp)
 
-*Source: OpenAI gpt-image-2 docs.* Demonstrates the `/images/edits` endpoint combining multiple product reference images into one coherent scene — lotion, candle, soap, ribbon, and a handwritten "Relax & Unwind" label. This is the flow we expose via `--reference-image` stacked calls.
+*Source: OpenAI gpt-image-2 launch gallery.* A GPT Image 2.0 "Coming soon" poster rendered as a 1960s French New Wave magazine collage — torn paper edges, period-accurate photography, hand-set typography with red and blue color blocking. Demonstrates full-composition control over era-specific design languages, layered photographic elements, and typographic hierarchy. Use this direction for brand launches, editorial covers, and any layout where typography IS the product.
 
-### Artistic and surreal composition
+### Web-grounded product catalogs (Thinking Mode)
 
-![A flowing river of white owl feathers cutting through a winter landscape, dreamlike surreal composition](examples/curated/openai-surreal-feathers.png)
+![OpenAI Thinking Mode Searches poster, branded merch grid featuring jersey, hoodie, tee, keychain, cap, notebook, mug, and green cap on a cream background](examples/curated/openai-thinking-mode-merch.webp)
 
-*Source: OpenAI gpt-image-2 docs.* Prompt: *"River made of white owl feathers through winter landscape."* Shows the model's range beyond editorial realism — impossible-in-reality imagery rendered with atmospheric depth. Use this direction for book covers, editorial spreads with a conceptual angle, artistic social-media visuals.
+*Source: OpenAI gpt-image-2 launch gallery.* Prompt: *"Make a poster about OpenAI merch available on the official website right now."* With Thinking Mode the model browses the web for reference, then renders a coherent multi-product catalog — consistent lighting, shadows, and alignment across eight separate objects on a shared grid. Demonstrates the `thinking_mode` parameter combining web grounding with layout-precise composition. Use for ecommerce catalog sheets, product-range hero shots, and any brief where accuracy-to-real-world matters.
 
-### Intricate mechanical / product detail
+### Full editorial spreads with multi-column layout
 
-![Exploded-view mechanical wristwatch with exposed gears, jewels, and hand-finishing detail](examples/curated/openai-mechanical-watch.png)
+![Nature Today magazine spread titled More Myth Than Menace about wolves in North America, multi-column body copy, photograph, stat sidebar, and infographic](examples/curated/openai-editorial-spread.webp)
 
-*Source: OpenAI gpt-image-2 docs.* Fine-gear watch movement — jewels, hand-finishing, intricate internal mechanism. Demonstrates the model's precision for e-commerce detail shots, patent-style illustrations, hero product renders where the subject IS the detail.
+*Source: OpenAI gpt-image-2 launch gallery.* A two-page *Nature Today* magazine spread — headline, standfirst, multi-column body text, pull quotes, stat sidebar, distribution map, and photograph, all rendered in a single generation with typographic consistency. Demonstrates the model's precision on long-form editorial layout with real readable copy, not lorem-ipsum. Use for print mockups, long-form content covers, and pitch-deck spreads where the typography needs to hold up at reading distance.
 
 ---
 
