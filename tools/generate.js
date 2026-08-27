@@ -15,6 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
+import { setTimeout as sleep } from "node:timers/promises";
 
 import OpenAI from "openai";
 import { toFile } from "openai";
@@ -40,6 +41,7 @@ function parseArgs(argv) {
     model: "gpt-image-2",
     moderation: "auto",
     n: 1,
+    provider: "openai",
   };
   for (let i = 2; i < argv.length; i++) {
     const flag = argv[i];
@@ -53,6 +55,7 @@ function parseArgs(argv) {
       case "--model":            args.model = next; i++; break;
       case "--moderation":       args.moderation = next; i++; break;
       case "--n":                args.n = parseInt(next, 10); i++; break;
+      case "--provider":         args.provider = next; i++; break;
       case "-h":
       case "--help":             printUsage(); process.exit(0);
       default:
@@ -73,6 +76,7 @@ Required:
   --prompt "<text>"            Image description.
 
 Optional:
+  --provider <provider>        openai | atlas. Default: openai
   --reference-image <path>     Repeatable. Adds a reference. Triggers Edits endpoint.
   --output <path>              Output path. Default: ./output.png
   --size <size>                Any WxH satisfying: max edge ≤ 3840, multiples of 16,
@@ -112,6 +116,128 @@ function writeBase64Png(b64, outputPath, suffix = "") {
   return finalPath;
 }
 
+const ATLAS_BASE_URL = "https://api.atlascloud.ai/api/v1";
+const ATLAS_TEXT_MODEL = "openai/gpt-image-2/text-to-image";
+const ATLAS_EDIT_MODEL = "openai/gpt-image-2/edit";
+const ATLAS_SIZES = new Set([
+  "1024x1024", "1024x768", "768x1024", "1024x1536", "1536x1024",
+  "2048x2048", "2048x1152", "1152x2048", "2560x1088", "1088x2560",
+  "2880x2160", "2160x2880", "3840x2160", "2160x3840",
+]);
+const ATLAS_QUALITIES = new Set(["low", "medium", "high"]);
+
+function atlasApiUrl(pathname) {
+  const base = (process.env.ATLASCLOUD_API_BASE_URL || ATLAS_BASE_URL).replace(/\/$/, "");
+  return `${base}${pathname}`;
+}
+
+async function atlasError(response) {
+  const body = await response.text();
+  return new Error(`Atlas Cloud request failed (${response.status}): ${body.slice(0, 500)}`);
+}
+
+async function fetchAtlasJson(pathname, options, fetchImpl) {
+  const response = await fetchImpl(atlasApiUrl(pathname), options);
+  if (!response.ok) throw await atlasError(response);
+  const payload = await response.json();
+  if (payload?.code && payload.code !== 200) {
+    throw new Error(`Atlas Cloud API error (${payload.code}): ${payload.message || "unknown error"}`);
+  }
+  return payload?.data ?? payload;
+}
+
+async function uploadAtlasImage(filePath, apiKey, fetchImpl) {
+  const absolutePath = path.resolve(filePath);
+  if (!fs.existsSync(absolutePath)) {
+    throw new Error(`Reference image not found: ${absolutePath}`);
+  }
+
+  const form = new FormData();
+  form.append("file", new Blob([fs.readFileSync(absolutePath)]), path.basename(absolutePath));
+  const data = await fetchAtlasJson("/model/uploadMedia", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}` },
+    body: form,
+  }, fetchImpl);
+  if (!data?.download_url) throw new Error("Atlas Cloud upload response missing download_url.");
+  return data.download_url;
+}
+
+async function getAtlasPrediction(id, apiKey, fetchImpl, sleepFn) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await fetchAtlasJson(`/model/prediction/${encodeURIComponent(id)}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${apiKey}` },
+      }, fetchImpl);
+    } catch (error) {
+      lastError = error;
+      if (attempt < 2) await sleepFn(500 * (2 ** attempt));
+    }
+  }
+  throw lastError;
+}
+
+async function generateWithAtlas(args, { fetchImpl = fetch, sleepFn = sleep } = {}) {
+  const apiKey = process.env.ATLASCLOUD_API_KEY;
+  if (!apiKey) throw new Error("ATLASCLOUD_API_KEY not set.");
+  if (args.n !== 1) throw new Error("Atlas Cloud currently supports --n 1 only.");
+
+  const size = args.size === "auto" ? "1024x1024" : args.size;
+  const quality = args.quality === "auto" ? "medium" : args.quality;
+  if (!ATLAS_SIZES.has(size)) {
+    throw new Error(`Atlas Cloud does not support size ${size}.`);
+  }
+  if (!ATLAS_QUALITIES.has(quality)) {
+    throw new Error(`Atlas Cloud does not support quality ${quality}.`);
+  }
+
+  const isEdit = args.referenceImages.length > 0;
+  const request = {
+    model: isEdit ? ATLAS_EDIT_MODEL : ATLAS_TEXT_MODEL,
+    prompt: args.prompt,
+    size,
+    quality,
+    output_format: "png",
+  };
+  if (isEdit) {
+    request.images = [];
+    for (const imagePath of args.referenceImages) {
+      request.images.push(await uploadAtlasImage(imagePath, apiKey, fetchImpl));
+    }
+  }
+
+  // Generation is billable: submit exactly once and never retry this POST.
+  const created = await fetchAtlasJson("/model/generateImage", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  }, fetchImpl);
+  if (!created?.id) throw new Error("Atlas Cloud generation response missing prediction id.");
+
+  let prediction;
+  for (let poll = 0; poll < 60; poll++) {
+    prediction = await getAtlasPrediction(created.id, apiKey, fetchImpl, sleepFn);
+    if (["completed", "succeeded"].includes(prediction?.status)) break;
+    if (["failed", "canceled", "cancelled"].includes(prediction?.status)) {
+      throw new Error(`Atlas Cloud generation ${prediction.status}: ${prediction.error || "unknown error"}`);
+    }
+    await sleepFn(2000);
+  }
+
+  const outputUrl = prediction?.outputs?.[0];
+  if (!outputUrl) throw new Error("Atlas Cloud prediction timed out or returned no output.");
+  const outputResponse = await fetchImpl(outputUrl, { method: "GET" });
+  if (!outputResponse.ok) throw await atlasError(outputResponse);
+  ensureOutputDir(args.output);
+  fs.writeFileSync(args.output, Buffer.from(await outputResponse.arrayBuffer()));
+  return [args.output];
+}
+
 async function main() {
   const args = parseArgs(process.argv);
 
@@ -119,6 +245,23 @@ async function main() {
     console.error("ERROR: --prompt is required.\n");
     printUsage();
     process.exit(2);
+  }
+  if (!["openai", "atlas"].includes(args.provider)) {
+    console.error("ERROR: --provider must be openai or atlas.");
+    process.exit(2);
+  }
+  if (args.provider === "atlas") {
+    const isEdit = args.referenceImages.length > 0;
+    console.log(
+      `[chatgpt-image] provider=atlas mode=${isEdit ? "edit" : "generate"} ` +
+      `size=${args.size} quality=${args.quality} n=${args.n}`
+    );
+    const t0 = Date.now();
+    const written = await generateWithAtlas(args);
+    const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+    console.log(`[chatgpt-image] done in ${elapsed}s. Wrote:`);
+    for (const file of written) console.log(`  ${file}`);
+    return;
   }
   if (!process.env.OPENAI_API_KEY) {
     console.error("ERROR: OPENAI_API_KEY not set. Add it to your env or to ~/.claude/.env");
@@ -129,7 +272,7 @@ async function main() {
   const isEdit = args.referenceImages.length > 0;
 
   console.log(
-    `[chatgpt-image] mode=${isEdit ? "edit" : "generate"} ` +
+    `[chatgpt-image] provider=openai mode=${isEdit ? "edit" : "generate"} ` +
     `model=${args.model} size=${args.size} quality=${args.quality} ` +
     `n=${args.n}${isEdit ? ` refs=${args.referenceImages.length}` : ""}`
   );
@@ -193,7 +336,11 @@ async function main() {
   for (const f of written) console.log(`  ${f}`);
 }
 
-main().catch((err) => {
-  console.error("[chatgpt-image] fatal:", err);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error("[chatgpt-image] fatal:", err?.message || err);
+    process.exit(1);
+  });
+}
+
+export { generateWithAtlas, parseArgs };
