@@ -37,12 +37,22 @@ distinguishing capability — pass 2 or more reference images to produce one com
 
 ## Setup
 
-Requires `OPENAI_API_KEY` environment variable and OpenAI organization verification.
+OpenAI is the default and requires `OPENAI_API_KEY` plus organization verification. Atlas Cloud is an explicit opt-in provider: set `ATLASCLOUD_API_KEY` and pass `--provider atlas`.
 See `README.md` for full setup. One-time install:
 
 ```bash
 cd ~/.claude/skills/chatgpt-image
 npm install
+```
+
+Optional Atlas Cloud example:
+
+```bash
+node ~/.claude/skills/chatgpt-image/tools/generate.js \
+  --provider atlas \
+  --prompt "Editorial product poster on a clean white background" \
+  --size 1024x1024 \
+  --output ./atlas-poster.png
 ```
 
 ## Single-shot generation
@@ -75,6 +85,7 @@ calls the **Generations endpoint**. Same flag surface, different backend.
 
 ```
 --prompt "<text>"               Required. Image description.
+--provider <provider>           openai | atlas. Default: openai
 --reference-image <path>        Repeatable. Adds a reference image. Triggers Edits endpoint.
 --output <path>                 Output path. Default: ./output.png
 --size <size>                   Any WxH where max edge ≤ 3840px, both edges multiples of 16,

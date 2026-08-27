@@ -215,7 +215,7 @@ Claude Code auto-discovers skills in `~/.claude/skills/`. Restart your session a
 
 Two one-time things.
 
-**1. API key.** Set `OPENAI_API_KEY` in your environment, or drop it into `~/.claude/.env`. The tool checks `process.env`, then `./.env`, then `~/.claude/.env`, then `<skill-dir>/.env`.
+**1. API key.** OpenAI remains the default provider. Set `OPENAI_API_KEY` in your environment, or drop it into `~/.claude/.env`. The tool checks `process.env`, then `./.env`, then `~/.claude/.env`, then `<skill-dir>/.env`. To opt in to Atlas Cloud instead, set `ATLASCLOUD_API_KEY` and pass `--provider atlas`.
 
 **2. Organization verification.** OpenAI gates `gpt-image-2` behind ID-based org verification. Go to [platform.openai.com/settings/organization/general](https://platform.openai.com/settings/organization/general) and click Verify Organization. The verification itself takes about two minutes. Propagation to the API can take another fifteen to thirty. Until it clears you will get `403 Your organization must be verified`.
 
@@ -241,6 +241,20 @@ node tools/generate.js \
   --output ./cover.png
 ```
 
+### Atlas Cloud (optional)
+
+Atlas Cloud uses the same prompt, size, quality, reference image, and output flags. It is never selected implicitly:
+
+```bash
+ATLASCLOUD_API_KEY=... node tools/generate.js \
+  --provider atlas \
+  --prompt 'Minimal product photo on a clean white background.' \
+  --size 1024x1024 \
+  --output ./atlas-product.png
+```
+
+Atlas Cloud accepts `--n 1`. With reference images, the tool uploads them and selects the Atlas `gpt-image-2` edit model.
+
 ### Multi-image composition
 
 Pass `--reference-image` multiple times. The tool switches to the Edits endpoint and composes:
@@ -258,6 +272,7 @@ node tools/generate.js \
 
 ```
 --prompt "<text>"               Required. Image description.
+--provider <provider>           openai | atlas. Default: openai
 --reference-image <path>        Repeatable (up to 16). Adds a reference. Triggers Edits endpoint.
 --output <path>                 Output path. Default: ./output.png
 --size <size>                   Any WxH satisfying: max edge ≤ 3840, both

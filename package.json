@@ -8,7 +8,8 @@
     "chatgpt-image": "tools/generate.js"
   },
   "scripts": {
-    "generate": "node tools/generate.js"
+    "generate": "node tools/generate.js",
+    "test": "node --test"
   },
   "keywords": [
     "claude-code",
